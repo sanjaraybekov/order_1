@@ -129,37 +129,37 @@ userInfo.route(texts.user_infos.add_description, async (ctx) => {
     )
     .text(t(ctx, texts.cancel), `cancle~${ctx.session.user.user_id}`);
   return await bot.api.sendMessage(
-    -1001695975547,
+    -1001718670724,
     getUserPost(ctx, ctx.session.user),
     {
       reply_markup: {
         ...keyboadrs,
-        // inline_keyboard: [
-        //   [
-        //     {
-        //       text: t(ctx, texts.location),
-        //       callback_data: `location_lat=${Number(
-        //         ctx.session.user.latitude
-        //       )}_lon=${Number(ctx.session.user.longitude)}`,
-        //     },
-        //     // {
-        //     //   text: t(ctx, texts.share),
-        //     //   switch_inline_query: `${
-        //     //     t(ctx, texts.orientr) + ctx.session.user.address
-        //     //   }\n${t(ctx, texts.telephone) + ctx.session.user.phones}`,
-        //     // },
-        //   ],
-        //   [
-        //     {
-        //       text: t(ctx, texts.confirm),
-        //       callback_data: `confirm~${ctx.session.user.user_id}~${ctx.session.user.username_surname}~${ctx.session.user.birthday}~${ctx.session.user.address}~${ctx.session.user.phones}~@${ctx.session.user.tg_username}`,
-        //     },
-        //     {
-        //       text: t(ctx, texts.cancel),
-        //       callback_data: `cancle~${ctx.session.user.user_id}`,
-        //     },
-        //   ],
-        // ],
+        inline_keyboard: [
+          [
+            // {
+            //   text: t(ctx, texts.location),
+            //   callback_data: `location_lat=${Number(
+            //     ctx.session.user.latitude
+            //   )}_lon=${Number(ctx.session.user.longitude)}`,
+            // },
+            // {
+            //   text: t(ctx, texts.share),
+            //   switch_inline_query: `${
+            //     t(ctx, texts.orientr) + ctx.session.user.address
+            //   }\n${t(ctx, texts.telephone) + ctx.session.user.phones}`,
+            // },
+          ],
+          [
+            {
+              text: t(ctx, texts.confirm),
+              callback_data: `confirm~${ctx.session.user.user_id}~${ctx.session.user.username_surname}~${ctx.session.user.birthday}~${ctx.session.user.address}~${ctx.session.user.phones}~@${ctx.session.user.tg_username}`,
+            },
+            {
+              text: t(ctx, texts.cancel),
+              callback_data: `cancle~${ctx.session.user.user_id}`,
+            },
+          ],
+        ],
       },
     }
   );
