@@ -10,8 +10,28 @@ export const main_menu = async (ctx: MyContext) => {
         inline_keyboard: [
           [
             {
-              text: t(ctx, texts.starting),
-              callback_data: texts.starting,
+              text: t(ctx, texts.yunusobod),
+              callback_data: texts.yunusobod,
+            },
+            {
+              text: t(ctx, texts.chilonzor),
+              callback_data: texts.chilonzor,
+            },
+          ],
+          [
+            {
+              text: t(ctx, texts.yakkasaroy),
+              callback_data: texts.yakkasaroy,
+            },
+            {
+              text: t(ctx, texts.beruniy),
+              callback_data: texts.beruniy,
+            },
+          ],
+          [
+            {
+              text: t(ctx, texts.sergili),
+              callback_data: texts.sergili,
             },
           ],
         ],

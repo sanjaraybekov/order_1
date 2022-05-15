@@ -7,29 +7,46 @@ export class User extends BaseEntity {
   @Column({
     type: "bigint",
   })
-  user_id: number;
+  User_telegram_id: number;
   @Column({
     nullable: true,
   })
-  tg_username: string;
+  Telegram_username: string;
   @Column()
-  fullName: string;
+  Locatsiya: string;
   @Column({
     nullable: true,
   })
-  birthday: string;
+  Bolim: string;
   @Column({
     nullable: true,
   })
-  phoneNumbers: string;
+  Telefon_raqam: string;
   @Column()
-  address: string;
+  Nima_yoqdi: string;
   @Column({
     nullable: true,
   })
-  latitude: number;
+  Narx_ball: string;
   @Column({
     nullable: true,
   })
-  longitude: number;
+  Assortiment_ball: string;
+  @Column({
+    nullable: true,
+  })
+  Xizmat_ball: string;
+  @Column({
+    nullable: true,
+  })
+  Taklif: string;
+  @Column({
+    nullable: true,
+  })
+  Yosh: string;
+
+  @Column({
+    nullable: true,
+  })
+  Ism: string;
 }

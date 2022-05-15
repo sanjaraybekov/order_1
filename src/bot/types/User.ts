@@ -1,11 +1,14 @@
 export type UserType = {
-  user_id: number;
-  tg_username: string;
-  description: string;
-  latitude: string;
-  longitude: string;
-  address: string;
-  username_surname: string;
-  birthday: string;
-  phones: string;
+  User_telegram_id: number;
+  Telegram_username: string;
+  Locatsiya: string;
+  Bolim: string;
+  Telefon_raqam: string;
+  Nima_yoqdi: string;
+  Narx_ball: string;
+  Assortiment_ball: string;
+  Xizmat_ball: string;
+  Taklif: string;
+  Yosh: string;
+  Ism: string;
 };

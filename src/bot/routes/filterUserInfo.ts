@@ -2,165 +2,248 @@ import { Router } from "@grammyjs/router";
 import { MyContext } from "../types/MyContext";
 import { texts } from "../constants/texts";
 import { t } from "../i18";
-import { InlineKeyboard, Keyboard, NextFunction } from "grammy";
-import { getUserPost } from "../helpers/getUserPost";
+import { InputFile, Keyboard } from "grammy";
+import { getPost } from "../helpers/getUserPost";
+import getButtons from "../helpers/getButtons";
 import bot from "../core/bot";
+import converterFolder from "../converterFolder";
+import { User } from "../../db/User";
 
-const userInfo = new Router<MyContext>((ctx) => ctx.session.route);
+const routes = new Router<MyContext>((ctx) => ctx.session.route);
 
-userInfo.route(texts.user_infos.user_name_surname, async (ctx) => {
-  ctx.session.user.tg_username = ctx.from?.username || "";
-  ctx.session.user.username_surname = ctx.message?.text || "";
-  ctx.session.route = texts.user_infos.birthday;
+routes.route(texts.locations, async (ctx) => {
+  ctx.session.user.User_telegram_id = ctx.chat?.id || 0;
+  ctx.session.user.Telegram_username = ctx.from?.username || "";
+  ctx.session.user.Locatsiya = t(ctx, ctx.update.callback_query?.data || "");
 
-  return ctx
-    .reply(t(ctx, texts.user_infos.add_birthday))
-    .then((v: any) => (ctx.session.msg_id_to_delete = v.message_id));
+  ctx.session.route = texts.first_question;
+  return ctx.editMessageText(t(ctx, texts.choose_chapter), {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: t(ctx, texts.sold), callback_data: texts.sold },
+          { text: t(ctx, texts.not_sold), callback_data: texts.not_sold },
+        ],
+      ],
+    },
+  });
 });
-
-userInfo.route(texts.user_infos.birthday, async (ctx) => {
-  ctx.session.user.birthday = ctx.message?.text || "";
-  ctx.session.route = texts.user_infos.add_address;
-  return ctx
-    .reply(t(ctx, texts.user_infos.add_address), {
-      parse_mode: "HTML",
-    })
-    .then((v: any) => (ctx.session.msg_id_to_delete = v.message_id));
-});
-
-userInfo.route(texts.user_infos.add_address, addAddress);
-
-async function addAddress(ctx: MyContext) {
-  ctx.session.user.address = ctx.message?.text || "";
-
-  const sendLocation = new Keyboard()
-    .requestLocation(t(ctx, texts.user_infos.add_location_req_btn))
-    .row();
-
-  ctx.session.route = texts.user_infos.add_location;
-  return ctx
-    .reply(t(ctx, texts.user_infos.add_location), {
-      reply_markup: { ...sendLocation, resize_keyboard: true },
-      parse_mode: "HTML",
-    })
-    .then((v) => (ctx.session.msg_id_to_delete = v.message_id));
-}
-
-function backMiddleware(prevRoute: string, prevRouteMiddleware: Function) {
-  return (ctx: MyContext, next: NextFunction) => {
-    if (ctx.message?.text === t(ctx, texts.go_back)) {
-      ctx.session.route = prevRoute;
-      return prevRouteMiddleware(ctx);
+routes.route(texts.first_question, async (ctx) => {
+  ctx.session.user.Bolim = t(ctx, ctx.update.callback_query?.data || "");
+  const chapter = ctx.update.callback_query?.data;
+  ctx.session.route = texts.second_question;
+  return ctx.editMessageText(
+    t(
+      ctx,
+      chapter === texts.sold
+        ? texts.first_question_sold
+        : texts.first_question_not_sold
+    ),
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: t(ctx, texts.price), callback_data: texts.price },
+            { text: t(ctx, texts.assortment), callback_data: texts.assortment },
+          ],
+          [{ text: t(ctx, texts.service), callback_data: texts.service }],
+        ],
+      },
     }
-    return next();
-  };
-}
+  );
+});
 
-userInfo.route(
-  texts.user_infos.add_location,
-  backMiddleware(texts.user_infos.add_address, addAddress),
-  async (ctx) => {
-    const location = ctx.msg?.location;
-    // ctx.deleteMessage();
-    if (location) {
-      ctx.api.deleteMessage(ctx.chat?.id || "", ctx.session.msg_id_to_delete);
-      ctx.session.user.longitude =
-        ctx.message?.location?.longitude.toString() || "";
-      ctx.session.user.latitude =
-        ctx.message?.location?.latitude.toString() || "";
+routes.route(texts.second_question, async (ctx) => {
+  const first_answer = ctx.update.callback_query?.data;
+  ctx.session.user.Nima_yoqdi = t(ctx, first_answer ? first_answer : "") || "";
 
-      ctx.session.route = texts.user_infos.add_phone;
-      // ctx.api.deleteMessage(ctx.from?.id || "", ctx.session.msg_id_to_delete);
-      const sendPhone = new Keyboard().requestContact(
-        t(ctx, texts.user_infos.add_phone_req_btn)
-      );
-      return ctx
-        .reply(t(ctx, texts.user_infos.add_phone), {
-          reply_markup: { ...sendPhone, resize_keyboard: true },
-          parse_mode: "HTML",
-        })
-        .then((v) => (ctx.session.msg_id_to_delete = v.message_id));
-    } else return ctx.reply(t(ctx, texts.user_infos.add_location_err));
-  }
-);
-userInfo.route(texts.user_infos.add_phone, async (ctx) => {
-  // ctx.deleteMessage();
-  const regex = /\+?(998)? ?(\d{2} ?\d{3} ?\d{2} ?\d{2})$/gi;
-  if (regex.test(ctx.msg?.text || "") || ctx.msg?.contact) {
-    (ctx.session.user.phones = ctx.msg?.contact?.phone_number || ""),
-      (ctx.session.route = texts.user_infos.add_description);
+  ctx.session.route = texts.third_question;
+  return ctx.editMessageText(t(ctx, texts.second_question), {
+    reply_markup: {
+      inline_keyboard: [
+        ...getButtons(
+          [
+            { name: 1, id: 1 },
+            { name: 2, id: 2 },
+            { name: 3, id: 3 },
+            { name: 4, id: 4 },
+            { name: 5, id: 5 },
+            { name: 6, id: 6 },
+            { name: 7, id: 7 },
+            { name: 8, id: 8 },
+            { name: 9, id: 9 },
+            { name: 10, id: 10 },
+          ],
+          4,
+          "ball"
+        ),
+      ],
+    },
+  });
+});
+routes.route(texts.third_question, (ctx) => {
+  ctx.session.user.Narx_ball =
+    ctx.update.callback_query?.data?.split("_")[1] || "";
+  ctx.session.route = texts.fourht_question;
+  return ctx.editMessageText(t(ctx, texts.third_question), {
+    reply_markup: {
+      inline_keyboard: [
+        ...getButtons(
+          [
+            { name: 1, id: 1 },
+            { name: 2, id: 2 },
+            { name: 3, id: 3 },
+            { name: 4, id: 4 },
+            { name: 5, id: 5 },
+            { name: 6, id: 6 },
+            { name: 7, id: 7 },
+            { name: 8, id: 8 },
+            { name: 9, id: 9 },
+            { name: 10, id: 10 },
+          ],
+          4,
+          "ball"
+        ),
+      ],
+    },
+  });
+});
+
+routes.route(texts.fourht_question, async (ctx, next) => {
+  ctx.session.user.Assortiment_ball =
+    ctx.update.callback_query?.data?.split("_")[1] || "";
+  ctx.session.route = texts.fifth_question;
+  return ctx
+    .editMessageText(t(ctx, texts.fourht_question), {
+      reply_markup: {
+        inline_keyboard: [
+          ...getButtons(
+            [
+              { name: 1, id: 1 },
+              { name: 2, id: 2 },
+              { name: 3, id: 3 },
+              { name: 4, id: 4 },
+              { name: 5, id: 5 },
+              { name: 6, id: 6 },
+              { name: 7, id: 7 },
+              { name: 8, id: 8 },
+              { name: 9, id: 9 },
+              { name: 10, id: 10 },
+            ],
+            4,
+            "ball"
+          ),
+        ],
+      },
+    })
+    .then(() => next());
+});
+
+routes.route(texts.fifth_question, async (ctx, next) => {
+  ctx.session.user.Xizmat_ball =
+    ctx.update.callback_query?.data?.split("_")[1] || "";
+  ctx.session.route = texts.sixth_question;
+  return ctx.editMessageText(t(ctx, texts.fifth_question)).then(() => next());
+});
+routes.route(texts.sixth_question, async (ctx, next) => {
+  if (ctx.update.message?.text) {
+    ctx.session.user.Taklif = ctx.update.message?.text;
+    ctx.session.route = texts.seventh_question;
+    return ctx.reply(t(ctx, texts.sixth_question)).then(() => next());
+  } else ctx.reply(t(ctx, texts.fifth_question_err));
+});
+routes.route(texts.seventh_question, async (ctx, next) => {
+  if (ctx.update.message?.text) {
+    ctx.session.user.Yosh = ctx.update.message?.text;
+    ctx.session.route = texts.eighth_question;
+    return ctx.reply(t(ctx, texts.seventh_question)).then(() => next());
+  } else ctx.reply(t(ctx, texts.sixth_question_err));
+});
+
+routes.route(texts.eighth_question, async (ctx) => {
+  if (ctx.update.message?.text) {
+    ctx.session.user.Ism = ctx.update.message?.text;
+    ctx.session.route = texts.last_session;
+    const sendPhone = new Keyboard().requestContact(
+      t(ctx, texts.eighth_question_content)
+    );
     return ctx
-      .reply(t(ctx, texts.user_infos.add_description), {
-        reply_markup: {
-          keyboard: [[{ text: t(ctx, texts.skip_btn) }]],
-          resize_keyboard: true,
-        },
+      .reply(t(ctx, texts.eighth_question), {
+        reply_markup: { ...sendPhone, resize_keyboard: true },
         parse_mode: "HTML",
       })
       .then((v) => (ctx.session.msg_id_to_delete = v.message_id));
+  } else return ctx.reply(t(ctx, texts.seventh_question_err));
+});
+
+routes.route(texts.last_session, async (ctx) => {
+  const regex = /\+?(998)? ?(\d{2} ?\d{3} ?\d{2} ?\d{2})$/gi;
+  if (regex.test(ctx.msg?.text || "") || ctx.msg?.contact) {
+    (ctx.session.user.Telefon_raqam = ctx.msg?.contact?.phone_number || ""),
+      ctx.reply(t(ctx, texts.thanks));
+
+    const newInfo = ctx.session.user;
+    const newInfoDB = await User.create({
+      User_telegram_id: Number(newInfo.User_telegram_id) || 0,
+      Telegram_username: `@${newInfo.Telegram_username}`,
+      Locatsiya: newInfo.Locatsiya,
+      Bolim: newInfo.Bolim,
+      Telefon_raqam: newInfo.Telefon_raqam,
+      Nima_yoqdi: newInfo.Nima_yoqdi,
+      Narx_ball: newInfo.Narx_ball,
+      Assortiment_ball: newInfo.Assortiment_ball,
+      Xizmat_ball: newInfo.Xizmat_ball,
+      Taklif: newInfo.Taklif,
+      Yosh: newInfo.Yosh,
+      Ism: newInfo.Ism,
+    });
+
+    await newInfoDB.save();
+
+    await converterFolder(ctx);
+
+    const location = ctx.session.user.Locatsiya;
+
+    await bot.api.sendDocument(
+      -1001718670724,
+      new InputFile(
+        `./${
+          location === t(ctx, texts.yunusobod)
+            ? `Yunusobod`
+            : location === t(ctx, texts.yakkasaroy)
+            ? `Yakkasaroy`
+            : location === t(ctx, texts.sergili)
+            ? `Sergili`
+            : location === t(ctx, texts.chilonzor)
+            ? `Chilonzor`
+            : location === t(ctx, texts.beruniy)
+            ? `Beruniy`
+            : ``
+        }.xlsx`
+      ),
+      {
+        caption: `${
+          location === t(ctx, texts.yunusobod)
+            ? `Yunusobod`
+            : location === t(ctx, texts.yakkasaroy)
+            ? `Yakkasaroy`
+            : location === t(ctx, texts.sergili)
+            ? `Sergili`
+            : location === t(ctx, texts.chilonzor)
+            ? `Chilonzor`
+            : location === t(ctx, texts.beruniy)
+            ? `Beruniy`
+            : ``
+        }.xlsx`,
+      }
+    );
+    return await bot.api
+      .sendMessage(-1001718670724, getPost(ctx, ctx.session.user))
+      .then((v) => (ctx.session.msg_id_to_delete = v.message_id))
+      .catch((err) => console.log(err));
   } else {
-    return ctx.reply(t(ctx, texts.user_infos.add_phone_err));
+    return ctx.reply(t(ctx, texts.nineth_question_err));
   }
 });
 
-userInfo.route(texts.user_infos.add_description, async (ctx) => {
-  // ctx.deleteMessage();
-  if (!ctx.msg?.text) {
-    return await ctx.reply(t(ctx, texts.user_infos.add_description_err));
-  }
-  await ctx.api.deleteMessage(ctx.chat?.id || "", ctx.session.msg_id_to_delete);
-  await ctx
-    .reply("Ma'lumotlarni tasdiqlash jarayoni amalga oshirilmoqda...")
-    .then((v) => (ctx.session.msg_id_to_delete = v.message_id));
-  if (ctx.msg?.text !== t(ctx, texts.skip_btn)) {
-    ctx.session.user.description = ctx.msg?.text || "";
-  }
-  const keyboadrs = new InlineKeyboard()
-    //   .text(
-    //     t(ctx, texts.location),
-    //     `location_lat=${Number(ctx.session.user.latitude)}_lon=${Number(
-    //       ctx.session.user.longitude
-    //     )}`
-    //   )
-    //   .row()
-    .text(
-      t(ctx, texts.confirm),
-      `confirm~${ctx.session.user.user_id}~${ctx.session.user.username_surname}~${ctx.session.user.birthday}~${ctx.session.user.address}~${ctx.session.user.phones}~@${ctx.session.user.tg_username}`
-    )
-    .text(t(ctx, texts.cancel), `cancle~${ctx.session.user.user_id}`);
-  return await bot.api
-    .sendMessage(-1001718670724, getUserPost(ctx, ctx.session.user), {
-      reply_markup: {
-        ...keyboadrs,
-        // inline_keyboard: [
-        //   [
-        //     {
-        //       text: t(ctx, texts.location),
-        //       callback_data: `location_lat=${Number(
-        //         ctx.session.user.latitude
-        //       )}_lon=${Number(ctx.session.user.longitude)}`,
-        //     },
-        //     {
-        //       text: t(ctx, texts.share),
-        //       switch_inline_query: `${
-        //         t(ctx, texts.orientr) + ctx.session.user.address
-        //       }\n${t(ctx, texts.telephone) + ctx.session.user.phones}`,
-        //     },
-        //   ],
-        //   [
-        //     {
-        //       text: t(ctx, texts.confirm),
-        //       callback_data: `confirm~${ctx.session.user.user_id}~${ctx.session.user.username_surname}~${ctx.session.user.birthday}~${ctx.session.user.address}~${ctx.session.user.phones}~@${ctx.session.user.tg_username}`,
-        //     },
-        //     {
-        //       text: t(ctx, texts.cancel),
-        //       callback_data: `cancle~${ctx.session.user.user_id}`,
-        //     },
-        //   ],
-        // ],
-      },
-    })
-    .catch((err) => console.log(err));
-});
-
-export { userInfo };
+export { routes };

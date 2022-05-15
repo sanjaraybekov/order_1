@@ -3,8 +3,7 @@ import { DEVELOPER_ID } from "../config";
 import bot from "./core/bot";
 import { main_menu } from "./markups/markups";
 import i18n, { t } from "./i18";
-import { composer } from "./composers";
-import { userInfo } from "./routes/filterUserInfo";
+import { routes } from "./routes/filterUserInfo";
 import { texts } from "./constants/texts";
 
 export const loadBot = () => {
@@ -18,13 +17,12 @@ export const loadBot = () => {
     })
   );
   bot.use(i18n.middleware());
-  bot.command("start", (ctx) => main_menu(ctx));
-  bot.command("boshlash", (ctx) => {
-    ctx.session.route = texts.user_infos.user_name_surname;
-    return ctx.reply(t(ctx, texts.user_infos.user_name_surname));
+  bot.command("start", (ctx) => {
+    main_menu(ctx);
+    ctx.session.route = texts.locations;
   });
-  bot.use(composer);
-  bot.use(userInfo);
+
+  bot.use(routes);
   bot.start();
 
   bot.api.sendMessage(DEVELOPER_ID, "bot started /start");
