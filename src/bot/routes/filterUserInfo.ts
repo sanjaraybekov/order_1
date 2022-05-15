@@ -128,10 +128,8 @@ userInfo.route(texts.user_infos.add_description, async (ctx) => {
       `confirm~${ctx.session.user.user_id}~${ctx.session.user.username_surname}~${ctx.session.user.birthday}~${ctx.session.user.address}~${ctx.session.user.phones}~@${ctx.session.user.tg_username}`
     )
     .text(t(ctx, texts.cancel), `cancle~${ctx.session.user.user_id}`);
-  return await bot.api.sendMessage(
-    -1001718670724,
-    getUserPost(ctx, ctx.session.user),
-    {
+  return await bot.api
+    .sendMessage(-1001718670724, getUserPost(ctx, ctx.session.user), {
       reply_markup: {
         ...keyboadrs,
         inline_keyboard: [
@@ -161,8 +159,8 @@ userInfo.route(texts.user_infos.add_description, async (ctx) => {
           ],
         ],
       },
-    }
-  );
+    })
+    .catch((err) => console.log(err));
 });
 
 export { userInfo };
