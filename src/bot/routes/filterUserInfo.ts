@@ -116,13 +116,13 @@ userInfo.route(texts.user_infos.add_description, async (ctx) => {
     ctx.session.user.description = ctx.msg?.text || "";
   }
   const keyboadrs = new InlineKeyboard()
-    .text(
-      t(ctx, texts.location),
-      `location_lat=${Number(ctx.session.user.latitude)}_lon=${Number(
-        ctx.session.user.longitude
-      )}`
-    )
-    .row()
+    //   .text(
+    //     t(ctx, texts.location),
+    //     `location_lat=${Number(ctx.session.user.latitude)}_lon=${Number(
+    //       ctx.session.user.longitude
+    //     )}`
+    //   )
+    //   .row()
     .text(
       t(ctx, texts.confirm),
       `confirm~${ctx.session.user.user_id}~${ctx.session.user.username_surname}~${ctx.session.user.birthday}~${ctx.session.user.address}~${ctx.session.user.phones}~@${ctx.session.user.tg_username}`
@@ -132,32 +132,32 @@ userInfo.route(texts.user_infos.add_description, async (ctx) => {
     .sendMessage(-1001718670724, getUserPost(ctx, ctx.session.user), {
       reply_markup: {
         ...keyboadrs,
-        inline_keyboard: [
-          [
-            // {
-            //   text: t(ctx, texts.location),
-            //   callback_data: `location_lat=${Number(
-            //     ctx.session.user.latitude
-            //   )}_lon=${Number(ctx.session.user.longitude)}`,
-            // },
-            // {
-            //   text: t(ctx, texts.share),
-            //   switch_inline_query: `${
-            //     t(ctx, texts.orientr) + ctx.session.user.address
-            //   }\n${t(ctx, texts.telephone) + ctx.session.user.phones}`,
-            // },
-          ],
-          [
-            {
-              text: t(ctx, texts.confirm),
-              callback_data: `confirm~${ctx.session.user.user_id}~${ctx.session.user.username_surname}~${ctx.session.user.birthday}~${ctx.session.user.address}~${ctx.session.user.phones}~@${ctx.session.user.tg_username}`,
-            },
-            {
-              text: t(ctx, texts.cancel),
-              callback_data: `cancle~${ctx.session.user.user_id}`,
-            },
-          ],
-        ],
+        // inline_keyboard: [
+        //   [
+        //     {
+        //       text: t(ctx, texts.location),
+        //       callback_data: `location_lat=${Number(
+        //         ctx.session.user.latitude
+        //       )}_lon=${Number(ctx.session.user.longitude)}`,
+        //     },
+        //     {
+        //       text: t(ctx, texts.share),
+        //       switch_inline_query: `${
+        //         t(ctx, texts.orientr) + ctx.session.user.address
+        //       }\n${t(ctx, texts.telephone) + ctx.session.user.phones}`,
+        //     },
+        //   ],
+        //   [
+        //     {
+        //       text: t(ctx, texts.confirm),
+        //       callback_data: `confirm~${ctx.session.user.user_id}~${ctx.session.user.username_surname}~${ctx.session.user.birthday}~${ctx.session.user.address}~${ctx.session.user.phones}~@${ctx.session.user.tg_username}`,
+        //     },
+        //     {
+        //       text: t(ctx, texts.cancel),
+        //       callback_data: `cancle~${ctx.session.user.user_id}`,
+        //     },
+        //   ],
+        // ],
       },
     })
     .catch((err) => console.log(err));

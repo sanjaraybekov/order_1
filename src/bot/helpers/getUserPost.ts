@@ -4,8 +4,6 @@ import { MyContext } from "../types/MyContext";
 import { UserType } from "../types/User";
 
 export const getUserPost = (ctx: MyContext, data: UserType) => {
-  console.log(data);
-
   return `Foydalanuvchi haqida ma'lumot\n\n${
     t(ctx, texts.namesername) + data.username_surname
   }\n${t(ctx, texts.birthday) + data.birthday}\n${
