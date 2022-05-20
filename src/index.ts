@@ -1,7 +1,7 @@
 import { createConnection } from "typeorm";
 import { loadBot } from "./bot";
 import { initQuestions } from "./bot/question";
-import { PASSWORD_DB } from "./config";
+// import { PASSWORD_DB } from "./config";
 import { User } from "./db/User";
 
 const main = async () => {
@@ -11,7 +11,7 @@ const main = async () => {
 			database: "user_info_db",
 			username: "postgres",
 			port: 5432,
-			password: PASSWORD_DB,
+			password: "123123",
 			host: "localhost",
 			entities: [User],
 			synchronize: true,
