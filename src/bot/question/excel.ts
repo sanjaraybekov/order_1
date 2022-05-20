@@ -10,6 +10,10 @@ export function sendCurrentQuestionExcel(ctx: MyContext) {
 	return ctx.replyWithDocument(new InputFile(EXCEL_PATH, "questions"));
 }
 
+export async function generateSheetsInExcel() {
+	return resolve(__dirname, "../../../statics/sheets.xlsx");
+}
+
 export async function getQuestionsFromExcel() {
 	const workbook = XLSX.readFile(EXCEL_PATH);
 	const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -58,6 +62,21 @@ export const getAdminSection = () => {
 			getQuestions()
 				.map((t, i) => `${i + 1}. ${t}`)
 				.join("\n")
+		)
+	);
+	bot.command("anketalar", async (ctx) =>
+		ctx.replyWithDocument(
+			new InputFile(await generateSheetsInExcel(), "questions")
+		)
+	);
+	bot.command("admin", async (ctx) =>
+		ctx.reply(
+			"Admin uchun\n/anketalar_lokatsiya - lokatsiyalar bo'yicha anketalar\n/anketalar - barcha anketalar\n/savollar - savollar"
+		)
+	);
+	bot.command("anketalar_lokatsiya", async (ctx) =>
+		ctx.replyWithDocument(
+			new InputFile(await generateSheetsInExcel(), "questions")
 		)
 	);
 
