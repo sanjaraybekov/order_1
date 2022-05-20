@@ -17,7 +17,6 @@ routes.route(texts.locations, async (ctx) => {
 	ctx.session.user.User_telegram_id = ctx.chat?.id || 0;
 	ctx.session.user.Telegram_username = ctx.from?.username || "";
 	ctx.session.user.Locatsiya = t(ctx, ctx.update.callback_query?.data || "");
-	console.log(getOneQuestion(2));
 
 	ctx.session.route = texts.first_question;
 	return ctx.editMessageText(t(ctx, texts.choose_chapter), {
@@ -39,12 +38,7 @@ routes.route(texts.first_question, async (ctx) => {
 	const chapter = ctx.update.callback_query?.data;
 	ctx.session.route = texts.second_question;
 	return ctx.editMessageText(
-		t(
-			ctx,
-			chapter === texts.sold
-				? texts.first_question_sold
-				: texts.first_question_not_sold
-		),
+		t(ctx, chapter === texts.sold ? getOneQuestion(1) : getOneQuestion(2)),
 		{
 			reply_markup: {
 				inline_keyboard: [
@@ -76,7 +70,7 @@ routes.route(texts.second_question, async (ctx) => {
 		t(ctx, first_answer ? first_answer : "") || "";
 
 	ctx.session.route = texts.third_question;
-	return ctx.editMessageText(t(ctx, texts.second_question), {
+	return ctx.editMessageText(t(ctx, getOneQuestion(3)), {
 		reply_markup: {
 			inline_keyboard: [
 				...getButtons(
@@ -103,7 +97,7 @@ routes.route(texts.third_question, (ctx) => {
 	ctx.session.user.Narx_ball =
 		ctx.update.callback_query?.data?.split("_")[1] || "";
 	ctx.session.route = texts.fourht_question;
-	return ctx.editMessageText(t(ctx, texts.third_question), {
+	return ctx.editMessageText(t(ctx, getOneQuestion(4)), {
 		reply_markup: {
 			inline_keyboard: [
 				...getButtons(
@@ -127,11 +121,11 @@ routes.route(texts.third_question, (ctx) => {
 	});
 });
 
-routes.route(texts.fourht_question, async (ctx, next) => {
+routes.route(texts.fourht_question, async (ctx) => {
 	ctx.session.user.Assortiment_ball =
 		ctx.update.callback_query?.data?.split("_")[1] || "";
 	ctx.session.route = texts.fifth_question;
-	return ctx.editMessageText(t(ctx, texts.fourht_question), {
+	return ctx.editMessageText(t(ctx, getOneQuestion(5)), {
 		reply_markup: {
 			inline_keyboard: [
 				...getButtons(
@@ -159,20 +153,20 @@ routes.route(texts.fifth_question, async (ctx) => {
 	ctx.session.user.Xizmat_ball =
 		ctx.update.callback_query?.data?.split("_")[1] || "";
 	ctx.session.route = texts.sixth_question;
-	return ctx.editMessageText(t(ctx, texts.fifth_question));
+	return ctx.editMessageText(t(ctx, getOneQuestion(6)));
 });
 routes.route(texts.sixth_question, (ctx) => {
 	if (ctx.update.message?.text) {
 		ctx.session.user.Taklif = ctx.update.message?.text;
 		ctx.session.route = texts.seventh_question;
-		return ctx.reply(t(ctx, texts.sixth_question));
+		return ctx.reply(t(ctx, getOneQuestion(7)));
 	} else return ctx.reply(t(ctx, texts.fifth_question_err));
 });
 routes.route(texts.seventh_question, (ctx) => {
 	if (ctx.update.message?.text) {
 		ctx.session.user.Yosh = ctx.update.message?.text;
 		ctx.session.route = texts.eighth_question;
-		return ctx.reply(t(ctx, texts.seventh_question));
+		return ctx.reply(t(ctx, getOneQuestion(8)));
 	} else return ctx.reply(t(ctx, texts.sixth_question_err));
 });
 
@@ -184,7 +178,7 @@ routes.route(texts.eighth_question, async (ctx) => {
 			t(ctx, texts.eighth_question_content)
 		);
 		return ctx
-			.reply(t(ctx, texts.eighth_question), {
+			.reply(t(ctx, getOneQuestion(9)), {
 				reply_markup: { ...sendPhone, resize_keyboard: true },
 				parse_mode: "HTML",
 			})
@@ -216,35 +210,13 @@ routes.route(texts.last_session, async (ctx) => {
 		await newInfoDB.save();
 
 		ctx.session.route = "main";
+
 		await ctx.reply(t(ctx, texts.thanks), {
 			reply_markup: { remove_keyboard: true },
 		});
 
 		await converterFolder(ctx);
 
-		const location = ctx.session.user.Locatsiya;
-
-		await bot.api.sendDocument(
-			-1001718670724,
-			new InputFile(
-				resolve(__dirname, "../../../statics", `${location}.xlsx`)
-			),
-			{
-				caption: `${
-					location === t(ctx, texts.yunusobod)
-						? `Yunusobod`
-						: location === t(ctx, texts.yakkasaroy)
-						? `Yakkasaroy`
-						: location === t(ctx, texts.sergili)
-						? `Sergili`
-						: location === t(ctx, texts.chilonzor)
-						? `Chilonzor`
-						: location === t(ctx, texts.beruniy)
-						? `Beruniy`
-						: ``
-				}.xlsx`,
-			}
-		);
 		return await bot.api
 			.sendMessage(-1001718670724, getPost(ctx, ctx.session.user))
 			.catch((err) => console.log(err));
