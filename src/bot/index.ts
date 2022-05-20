@@ -5,9 +5,11 @@ import { main_menu } from "./markups/markups";
 import i18n, { t } from "./i18";
 import { routes } from "./routes/filterUserInfo";
 import { texts } from "./constants/texts";
-import { getQuestions } from "./question";
+import { getAdminSection } from "./question/excel";
+import { hydrateFiles } from "@grammyjs/files";
 
 export const loadBot = () => {
+	bot.api.config.use(hydrateFiles(bot.token));
 	bot.use(
 		session({
 			initial: () => ({
@@ -20,6 +22,8 @@ export const loadBot = () => {
 	);
 	bot.use(i18n.middleware());
 	bot.use(routes);
+	bot.use(getAdminSection());
+
 	bot.command("start", (ctx) => {
 		ctx.session.route = texts.locations;
 		return main_menu(ctx);

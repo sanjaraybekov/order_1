@@ -1,4 +1,4 @@
-import { InputFile } from "grammy";
+import { Composer, InputFile } from "grammy";
 import { getQuestions, setQuestions, TQuestions } from ".";
 import { resolve } from "path";
 import { MyContext } from "../types/MyContext";
@@ -22,6 +22,16 @@ export async function getQuestionsFromExcel() {
 
 export async function downloadQuestions(ctx: MyContext) {
 	try {
+		// validate
+		const file_name = ctx.message?.document?.file_name;
+		if (
+			!(
+				file_name &&
+				(file_name.endsWith(".xls") || file_name.endsWith(".xlsx"))
+			)
+		)
+			return;
+
 		// download
 		const file = await ctx.getFile();
 
@@ -31,10 +41,25 @@ export async function downloadQuestions(ctx: MyContext) {
 		// set new data
 		setQuestions(await getQuestionsFromExcel());
 
-		return ctx.reply("Savollar o'zgartirldi!");
+		return ctx.reply("Savollar o'zgartirldi!\nTekshirish uchun: /savollar");
 	} catch (error) {
 		console.error(error);
 
 		return ctx.reply("Excel faylda qandaydir xatolik!");
 	}
 }
+
+export const getAdminSection = () => {
+	const bot = new Composer<MyContext>();
+
+	bot.on(":document", downloadQuestions);
+	bot.command("savollar", (ctx) =>
+		ctx.reply(
+			getQuestions()
+				.map((t, i) => `${i + 1}. ${t}`)
+				.join("\n")
+		)
+	);
+
+	return bot;
+};
