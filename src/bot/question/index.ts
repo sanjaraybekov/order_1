@@ -12,6 +12,10 @@ export function getQuestions() {
 	return questions;
 }
 
+export function getOneQuestion(position: number) {
+	return questions[position - 1];
+}
+
 export function setQuestions(new_qs: TQuestions) {
 	questions = new_qs;
 	return questions;

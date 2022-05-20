@@ -1,5 +1,5 @@
 import { InputFile } from "grammy";
-import { setQuestions, TQuestions } from ".";
+import { getQuestions, setQuestions, TQuestions } from ".";
 import { resolve } from "path";
 import { MyContext } from "../types/MyContext";
 import XLSX from "xlsx";
