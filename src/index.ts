@@ -1,5 +1,7 @@
 import { createConnection } from "typeorm";
 import { loadBot } from "./bot";
+import { initQuestions } from "./bot/question";
+// import { PASSWORD_DB } from "./config";
 import { User } from "./db/User";
 
 const main = async () => {
@@ -15,7 +17,8 @@ const main = async () => {
 			synchronize: true,
 		});
 		console.log("Connected to DB");
-		loadBot();
+		await initQuestions();
+		await loadBot();
 	} catch (err) {
 		console.log("Unable to connect DB, Eror: ", err);
 	}

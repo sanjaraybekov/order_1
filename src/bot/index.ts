@@ -5,6 +5,7 @@ import { main_menu } from "./markups/markups";
 import i18n, { t } from "./i18";
 import { routes } from "./routes/filterUserInfo";
 import { texts } from "./constants/texts";
+import { getQuestions } from "./question";
 
 export const loadBot = () => {
 	bot.use(
@@ -23,6 +24,7 @@ export const loadBot = () => {
 		ctx.session.route = texts.locations;
 		return main_menu(ctx);
 	});
+
 	bot.start({
 		onStart() {
 			bot.api.sendMessage(DEVELOPER_ID, "bot started /start");

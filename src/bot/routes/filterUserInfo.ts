@@ -188,7 +188,7 @@ routes.route(texts.eighth_question, async (ctx) => {
 				reply_markup: { ...sendPhone, resize_keyboard: true },
 				parse_mode: "HTML",
 			})
-			.then((v) => (ctx.session.msg_id_to_delete = v.message_id));
+			.then((v: any) => (ctx.session.msg_id_to_delete = v.message_id));
 	} else return ctx.reply(t(ctx, texts.seventh_question_err));
 });
 
