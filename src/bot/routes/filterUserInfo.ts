@@ -131,51 +131,49 @@ routes.route(texts.fourht_question, async (ctx, next) => {
 	ctx.session.user.Assortiment_ball =
 		ctx.update.callback_query?.data?.split("_")[1] || "";
 	ctx.session.route = texts.fifth_question;
-	return ctx
-		.editMessageText(t(ctx, texts.fourht_question), {
-			reply_markup: {
-				inline_keyboard: [
-					...getButtons(
-						[
-							{ name: 1, id: 1 },
-							{ name: 2, id: 2 },
-							{ name: 3, id: 3 },
-							{ name: 4, id: 4 },
-							{ name: 5, id: 5 },
-							{ name: 6, id: 6 },
-							{ name: 7, id: 7 },
-							{ name: 8, id: 8 },
-							{ name: 9, id: 9 },
-							{ name: 10, id: 10 },
-						],
-						4,
-						"ball"
-					),
-				],
-			},
-		})
-		.then(() => next());
+	return ctx.editMessageText(t(ctx, texts.fourht_question), {
+		reply_markup: {
+			inline_keyboard: [
+				...getButtons(
+					[
+						{ name: 1, id: 1 },
+						{ name: 2, id: 2 },
+						{ name: 3, id: 3 },
+						{ name: 4, id: 4 },
+						{ name: 5, id: 5 },
+						{ name: 6, id: 6 },
+						{ name: 7, id: 7 },
+						{ name: 8, id: 8 },
+						{ name: 9, id: 9 },
+						{ name: 10, id: 10 },
+					],
+					4,
+					"ball"
+				),
+			],
+		},
+	});
 });
 
-routes.route(texts.fifth_question, async (ctx, next) => {
+routes.route(texts.fifth_question, async (ctx) => {
 	ctx.session.user.Xizmat_ball =
 		ctx.update.callback_query?.data?.split("_")[1] || "";
 	ctx.session.route = texts.sixth_question;
-	return ctx.editMessageText(t(ctx, texts.fifth_question)).then(() => next());
+	return ctx.editMessageText(t(ctx, texts.fifth_question));
 });
-routes.route(texts.sixth_question, async (ctx, next) => {
+routes.route(texts.sixth_question, (ctx) => {
 	if (ctx.update.message?.text) {
 		ctx.session.user.Taklif = ctx.update.message?.text;
 		ctx.session.route = texts.seventh_question;
-		return ctx.reply(t(ctx, texts.sixth_question)).then(() => next());
-	} else ctx.reply(t(ctx, texts.fifth_question_err));
+		return ctx.reply(t(ctx, texts.sixth_question));
+	} else return ctx.reply(t(ctx, texts.fifth_question_err));
 });
-routes.route(texts.seventh_question, async (ctx, next) => {
+routes.route(texts.seventh_question, (ctx) => {
 	if (ctx.update.message?.text) {
 		ctx.session.user.Yosh = ctx.update.message?.text;
 		ctx.session.route = texts.eighth_question;
-		return ctx.reply(t(ctx, texts.seventh_question)).then(() => next());
-	} else ctx.reply(t(ctx, texts.sixth_question_err));
+		return ctx.reply(t(ctx, texts.seventh_question));
+	} else return ctx.reply(t(ctx, texts.sixth_question_err));
 });
 
 routes.route(texts.eighth_question, async (ctx) => {
@@ -197,8 +195,7 @@ routes.route(texts.eighth_question, async (ctx) => {
 routes.route(texts.last_session, async (ctx) => {
 	const regex = /\+?(998)? ?(\d{2} ?\d{3} ?\d{2} ?\d{2})$/gi;
 	if (regex.test(ctx.msg?.text || "") || ctx.msg?.contact) {
-		(ctx.session.user.Telefon_raqam = ctx.msg?.contact?.phone_number || ""),
-			ctx.reply(t(ctx, texts.thanks));
+		ctx.session.user.Telefon_raqam = ctx.msg?.contact?.phone_number || "";
 
 		const newInfo = ctx.session.user;
 		const newInfoDB = await User.create({
@@ -217,6 +214,11 @@ routes.route(texts.last_session, async (ctx) => {
 		});
 
 		await newInfoDB.save();
+
+		ctx.session.route = "main";
+		await ctx.reply(t(ctx, texts.thanks), {
+			reply_markup: { remove_keyboard: true },
+		});
 
 		await converterFolder(ctx);
 
