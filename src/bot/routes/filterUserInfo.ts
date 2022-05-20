@@ -9,6 +9,7 @@ import bot from "../core/bot";
 import converterFolder from "../converterFolder";
 import { User } from "../../db/User";
 import { resolve } from "path";
+import { getOneQuestion } from "../question";
 
 const routes = new Router<MyContext>((ctx) => ctx.session.route);
 
@@ -16,6 +17,7 @@ routes.route(texts.locations, async (ctx) => {
 	ctx.session.user.User_telegram_id = ctx.chat?.id || 0;
 	ctx.session.user.Telegram_username = ctx.from?.username || "";
 	ctx.session.user.Locatsiya = t(ctx, ctx.update.callback_query?.data || "");
+	console.log(getOneQuestion(2));
 
 	ctx.session.route = texts.first_question;
 	return ctx.editMessageText(t(ctx, texts.choose_chapter), {
