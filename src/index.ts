@@ -19,7 +19,7 @@ const main = async () => {
 		});
 		console.log("Connected to DB");
 		await initQuestions();
-		await loadBot();
+		return loadBot();
 	} catch (err) {
 		console.log("Unable to connect DB, Eror: ", err);
 	}
