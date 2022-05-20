@@ -2,13 +2,7 @@ import { getQuestionsFromExcel } from "./excel";
 
 let questions: TQuestions;
 
-export type TQuestions = {
-	first: string;
-	second: string;
-	third: string;
-	fourth: string;
-	fifth: string;
-};
+export type TQuestions = string[];
 
 export async function initQuestions() {
 	return setQuestions(await getQuestionsFromExcel());

@@ -1,21 +1,23 @@
 import { InputFile } from "grammy";
-import { setQuestions } from ".";
+import { setQuestions, TQuestions } from ".";
+import { resolve } from "path";
 import { MyContext } from "../types/MyContext";
+import XLSX from "xlsx";
 
-const EXCEL_PATH = "bot/questions/questions.xlsx";
+const EXCEL_PATH = resolve(__dirname, "../../../statics/questions.xlsx");
 
 export function sendCurrentQuestionExcel(ctx: MyContext) {
 	return ctx.replyWithDocument(new InputFile(EXCEL_PATH, "questions"));
 }
 
 export async function getQuestionsFromExcel() {
-	return {
-		first: "Hi_1",
-		second: "Hi_2",
-		third: "Hi_3",
-		fourth: "Hi_4",
-		fifth: "Hi_5",
-	};
+	const workbook = XLSX.readFile(EXCEL_PATH);
+	const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+	const json: TQuestions = XLSX.utils
+		.sheet_to_json(worksheet)
+		.map((row: any) => row.text);
+
+	return json;
 }
 
 export async function downloadQuestions(ctx: MyContext) {
