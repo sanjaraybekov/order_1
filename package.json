@@ -20,7 +20,7 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"pm2": "start src/index.ts --watch",
+		"pm2": "NODE_ENV=production start",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "nodemon --watch './**/*.ts' --exec 'ts-node' src/index.ts",
 		"start": "ts-node src/index.ts"
@@ -37,4 +37,8 @@
 	},
 	"homepage": "https://github.com/sanjaraybekov/user_info_bot#readme",
 	"description": ""
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 6af6ac334839ca232b525af87ac39df1887532b1
