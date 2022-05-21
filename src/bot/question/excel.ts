@@ -3,6 +3,7 @@ import { getQuestions, setQuestions, TQuestions } from ".";
 import { resolve } from "path";
 import { MyContext } from "../types/MyContext";
 import XLSX from "xlsx";
+const fs = require("fs");
 
 const EXCEL_PATH = resolve(__dirname, "../../../statics/questions.xlsx");
 
@@ -10,8 +11,8 @@ export function sendCurrentQuestionExcel(ctx: MyContext) {
 	return ctx.replyWithDocument(new InputFile(EXCEL_PATH, "questions"));
 }
 
-export async function generateSheetsInExcel() {
-	return resolve(__dirname, "../../../statics/sheets.xlsx");
+export async function generateSheetsInExcel(data: string) {
+	return resolve(__dirname, `../../../statics/${data}`);
 }
 
 export async function getQuestionsFromExcel() {
@@ -66,7 +67,10 @@ export const getAdminSection = () => {
 	);
 	bot.command("anketalar", async (ctx) =>
 		ctx.replyWithDocument(
-			new InputFile(await generateSheetsInExcel(), "questions")
+			new InputFile(
+				await generateSheetsInExcel("locations.xlsx"),
+				"Hamma Locatsiyalar.xlsx"
+			)
 		)
 	);
 	bot.command("admin", async (ctx) =>
@@ -74,11 +78,20 @@ export const getAdminSection = () => {
 			"Admin uchun\n/anketalar_lokatsiya - lokatsiyalar bo'yicha anketalar\n/anketalar - barcha anketalar\n/savollar - savollar"
 		)
 	);
-	bot.command("anketalar_lokatsiya", async (ctx) =>
-		ctx.replyWithDocument(
-			new InputFile(await generateSheetsInExcel(), "questions")
-		)
-	);
+
+	bot.command("anketalar_lokatsiya", async (ctx) => {
+		const dir = "./statics";
+		const files = fs.readdirSync(dir);
+		for (const file of files) {
+			if (file.split(".")[0] === "questions") console.log("question");
+			else if (file.split(".")[0] === "locations")
+				console.log("location");
+			else
+				ctx.replyWithDocument(
+					new InputFile(await generateSheetsInExcel(file), file)
+				);
+		}
+	});
 
 	return bot;
 };
