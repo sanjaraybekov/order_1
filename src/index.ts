@@ -12,7 +12,7 @@ const main = async () => {
 			database: "user_info_db",
 			username: "postgres",
 			port: 5432,
-			password: "123123",
+			password: PASSWORD_DB,
 			host: "localhost",
 			entities: [User],
 			synchronize: true,
