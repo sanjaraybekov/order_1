@@ -58,13 +58,15 @@ export const getAdminSection = () => {
 	const bot = new Composer<MyContext>();
 
 	bot.on(":document", downloadQuestions);
-	bot.command("savollar", (ctx) =>
-		ctx.reply(
+	bot.command("savollar", async (ctx) => {
+		await ctx.replyWithDocument(new InputFile(EXCEL_PATH));
+
+		return ctx.reply(
 			getQuestions()
 				.map((t, i) => `${i + 1}. ${t}`)
 				.join("\n")
-		)
-	);
+		);
+	});
 	bot.command("anketalar", async (ctx) =>
 		ctx.replyWithDocument(
 			new InputFile(
