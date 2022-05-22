@@ -3,10 +3,9 @@ import { getQuestions, setQuestions, TQuestions } from ".";
 import { resolve } from "path";
 import { MyContext } from "../types/MyContext";
 import XLSX from "xlsx";
-const fs = require("fs");
+import fs from "fs";
 
 const EXCEL_PATH = resolve(__dirname, "../../../statics/questions.xlsx");
-
 export function sendCurrentQuestionExcel(ctx: MyContext) {
 	return ctx.replyWithDocument(new InputFile(EXCEL_PATH, "questions"));
 }
@@ -16,7 +15,14 @@ export async function generateSheetsInExcel(data: string) {
 }
 
 export async function getQuestionsFromExcel() {
-	const workbook = XLSX.readFile(EXCEL_PATH);
+	let path = EXCEL_PATH;
+
+	if (!fs.existsSync(EXCEL_PATH)) {
+		path = path.replace("questions", "init_questions");
+		fs.copyFile(path, EXCEL_PATH, () => "");
+	}
+
+	const workbook = XLSX.readFile(path);
 	const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 	const json: TQuestions = XLSX.utils
 		.sheet_to_json(worksheet)
