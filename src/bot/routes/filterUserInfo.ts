@@ -2,13 +2,12 @@ import { Router } from "@grammyjs/router";
 import { MyContext } from "../types/MyContext";
 import { texts } from "../constants/texts";
 import { t } from "../i18";
-import { InputFile, Keyboard } from "grammy";
+import { Keyboard } from "grammy";
 import { getPost } from "../helpers/getUserPost";
 import getButtons from "../helpers/getButtons";
 import bot from "../core/bot";
 import converterFolder from "../converterFolder";
 import { User } from "../../db/User";
-import { resolve } from "path";
 import { getOneQuestion } from "../question";
 
 const routes = new Router<MyContext>((ctx) => ctx.session.route);
