@@ -12,6 +12,7 @@ const convertJsonToExcel = async (ctx: MyContext) => {
 
 	const workSheet = XLSX.utils.json_to_sheet(usersData);
 	const workBook = XLSX.utils.book_new();
+
 	XLSX.utils.book_append_sheet(
 		workBook,
 		workSheet,
@@ -30,15 +31,15 @@ const convertJsonToExcel = async (ctx: MyContext) => {
 		}`
 	);
 
-	XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
 	XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
 	XLSX.writeFile(
 		workBook,
-		`${resolve(__dirname, "../../../statics", location)}.xlsx`
+		resolve(__dirname, "../../../statics/locations.xlsx")
 	);
+	XLSX.write(workBook, { bookType: "xlsx", type: "buffer" });
 	XLSX.writeFile(
 		workBook,
-		resolve(__dirname, "../../../statics/locations.xlsx")
+		`${resolve(__dirname, "../../../statics", location)}.xlsx`
 	);
 };
 
