@@ -94,6 +94,8 @@ export const getAdminSection = () => {
 			if (file.split(".")[0] === "questions") console.log("question");
 			else if (file.split(".")[0] === "locations")
 				console.log("location");
+			else if (file.split(".")[0] === "init_questions")
+				console.log("init_questions");
 			else
 				ctx.replyWithDocument(
 					new InputFile(await generateSheetsInExcel(file), file)
