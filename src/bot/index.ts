@@ -12,6 +12,10 @@ import { hydrateFiles } from "@grammyjs/files";
 
 export const loadBot = () => {
 	bot.api.config.use(hydrateFiles(bot.token));
+
+	bot.catch((err) => {
+		console.error(err);
+	});
 	bot.use(getAdminSection());
 	bot.use((ctx, next) => (ctx.chat?.type === "private" ? next() : undefined));
 	bot.use(
