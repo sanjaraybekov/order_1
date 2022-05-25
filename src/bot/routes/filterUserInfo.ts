@@ -64,10 +64,19 @@ routes.route(texts.third_question, async (ctx) => {
 
 routes.route(texts.fourht_question, async (ctx) => {
 	const regex = /\+?(998)? ?(\d{2} ?\d{3} ?\d{2} ?\d{2})$/gi;
+
 	if (regex.test(ctx.msg?.text || "") || ctx.msg?.contact) {
-		ctx.session.user.Telefon_raqam = ctx.msg?.contact?.phone_number || "";
+		ctx.session.user.Telefon_raqam =
+			ctx.msg?.contact?.phone_number || ctx.msg?.text || "";
 		ctx.session.route = texts.fifth_question;
 		const chapter = await ctx.session.user.Bolim;
+
+		if (ctx.chat?.id && ctx.message?.message_id) {
+			ctx.api
+				.deleteMessage(ctx.chat.id, ctx.message.message_id - 1)
+				.catch((e) => {});
+		}
+
 		return await ctx.reply(
 			t(
 				ctx,
