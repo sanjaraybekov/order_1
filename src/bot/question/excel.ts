@@ -4,14 +4,27 @@ import { resolve } from "path";
 import { MyContext } from "../types/MyContext";
 import XLSX from "xlsx";
 import fs from "fs";
-
+import { User } from "../../db/User";
 const EXCEL_PATH = resolve(__dirname, "../../../statics/questions.xlsx");
 export function sendCurrentQuestionExcel(ctx: MyContext) {
 	return ctx.replyWithDocument(new InputFile(EXCEL_PATH, "questions"));
 }
 
-export async function generateSheetsInExcel(data: string) {
+export async function getPath(data: string) {
 	return resolve(__dirname, `../../../statics/${data}`);
+}
+
+export async function generateExcel() {
+	const users = await User.find();
+	// console.log(users);
+	const workSheet = XLSX.utils.json_to_sheet(users);
+	const workBook = XLSX.utils.book_new();
+	XLSX.utils.book_append_sheet(workBook, workSheet);
+	XLSX.writeFile(
+		workBook,
+		`${resolve(__dirname, "../../../statics/locations.xlsx")}`
+	);
+	console.log("sss");
 }
 
 export async function getQuestionsFromExcel() {
@@ -73,14 +86,15 @@ export const getAdminSection = () => {
 				.join("\n")
 		);
 	});
-	bot.command("anketalar", async (ctx) =>
-		ctx.replyWithDocument(
+	bot.command("anketalar", async (ctx) => {
+		await generateExcel();
+		return ctx.replyWithDocument(
 			new InputFile(
-				await generateSheetsInExcel("locations.xlsx"),
+				await getPath("locations.xlsx"),
 				"Hamma Locatsiyalar.xlsx"
 			)
-		)
-	);
+		);
+	});
 	bot.command("admin", async (ctx) =>
 		ctx.reply(
 			"Admin uchun\n/anketalar_lokatsiya - lokatsiyalar bo'yicha anketalar\n/anketalar - barcha anketalar\n/savollar - savollar"
@@ -97,9 +111,7 @@ export const getAdminSection = () => {
 			else if (file.split(".")[0] === "init_questions")
 				console.log("init_questions");
 			else
-				ctx.replyWithDocument(
-					new InputFile(await generateSheetsInExcel(file), file)
-				);
+				ctx.replyWithDocument(new InputFile(await getPath(file), file));
 		}
 	});
 
