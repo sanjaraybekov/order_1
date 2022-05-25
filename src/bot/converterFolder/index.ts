@@ -36,10 +36,6 @@ const convertJsonToExcel = async (ctx: MyContext) => {
 
 	XLSX.writeFile(
 		workBook,
-		resolve(__dirname, "../../../statics/locations.xlsx")
-	);
-	XLSX.writeFile(
-		workBook,
 		`${resolve(__dirname, "../../../statics", location)}.xlsx`
 	);
 };
