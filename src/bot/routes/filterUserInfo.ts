@@ -76,24 +76,25 @@ routes.route(texts.fourht_question, async (ctx) => {
 			{
 				reply_markup: {
 					remove_keyboard: true,
-					inline_keyboard: [
+					keyboard: [
 						[
 							{
 								text: t(ctx, texts.price),
-								callback_data: texts.price,
+								// callback_data: texts.price,
 							},
 							{
 								text: t(ctx, texts.assortment),
-								callback_data: texts.assortment,
+								// callback_data: texts.assortment,
 							},
 						],
 						[
 							{
 								text: t(ctx, texts.service),
-								callback_data: texts.service,
+								// callback_data: texts.service,
 							},
 						],
 					],
+					resize_keyboard: true,
 				},
 			}
 		);
@@ -111,7 +112,6 @@ routes.route(texts.fifth_question, async (ctx) => {
 	ctx.deleteMessage();
 	return ctx.reply(t(ctx, getOneQuestion(6)), {
 		reply_markup: {
-			remove_keyboard: true,
 			inline_keyboard: [
 				...getButtons(
 					[
