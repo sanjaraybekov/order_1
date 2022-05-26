@@ -317,7 +317,7 @@ routes.route(texts.last_session, async (ctx) => {
 		await bot.api
 			.sendMessage(
 				// -1001718670724,
-				1001607304530,
+				-1001607304530,
 				getPost(ctx, ctx.session.user)
 			)
 			.catch((err) => console.log(err));
