@@ -4,18 +4,24 @@ import { MyContext } from "../types/MyContext";
 import { UserType } from "../types/User";
 
 export const getPost = (ctx: MyContext, data: UserType) => {
-	return `Yangi ma'lumot\n\n${t(ctx, texts.userfullname) + data.Ism}\n${
-		t(ctx, texts.age) + data.Yosh
-	}\n${t(ctx, texts.userchapter) + t(ctx, data.Bolim)}\n${
-		t(ctx, texts.location) + t(ctx, data.Locatsiya)
+	return `Yangi ma'lumot\n\n${
+		t(ctx, texts.shaxs) +
+		(data.persontype.split(" ")[0] === "Erkaklar"
+			? data.persontype.split(" ")[0].slice(0, 5)
+			: data.persontype.split(" ")[0].slice(0, 4))
+	}\n${t(ctx, texts.userfullname) + data.ism}\n${
+		t(ctx, texts.age) + data.yosh
+	}\n${t(ctx, texts.userchapter) + t(ctx, data.bolim)}\n${
+		t(ctx, texts.location) + t(ctx, data.locatsiya)
 	}\n${
-		t(ctx, data.Bolim === t(ctx, texts.sold) ? texts.like : texts.dislike) +
-		t(ctx, data.Nima_yoqdi)
-	}\n${t(ctx, texts.price_ball) + data.Narx_ball}\n${
-		t(ctx, texts.assorti_ball) + data.Assortiment_ball
-	}\n${t(ctx, texts.service_ball) + data.Xizmat_ball}\n${
-		t(ctx, texts.offer) + data.Taklif
-	}\n${t(ctx, texts.username) + "@" + data.Telegram_username}\n${
-		t(ctx, texts.phone) + data.Telefon_raqam
-	}\n\nID: ${data.User_telegram_id}`;
+		t(ctx, data.bolim === t(ctx, texts.sold) ? texts.like : texts.dislike) +
+		t(ctx, data.nima_yoqdi)
+	}\n${t(ctx, texts.price_ball) + data.narx_ball}\n${
+		t(ctx, texts.assorti_ball) + data.assortiment_ball
+	}\n${t(ctx, texts.service_ball) + data.xizmat_ball}\n${
+		t(ctx, texts.offer) + data.taklif
+	}\n${
+		t(ctx, texts.username) +
+		(ctx.from?.username ? `@${data.telegram_username}` : "Mavjud emas")
+	}\n${t(ctx, texts.phone) + data.telefon_raqam}`;
 };

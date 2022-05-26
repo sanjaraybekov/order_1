@@ -9,55 +9,99 @@ import bot from "../core/bot";
 import converterFolder from "../converterFolder";
 import { User } from "../../db/User";
 import { getOneQuestion } from "../question";
+import { ball, men, women } from "../constants/buttons";
 
 const routes = new Router<MyContext>((ctx) => ctx.session.route);
 
-routes.route(texts.locations, async (ctx) => {
-	ctx.session.user.User_telegram_id = ctx.chat?.id || 0;
-	ctx.session.user.Telegram_username = ctx.from?.username || "";
-	ctx.session.user.Locatsiya = ctx.message?.text || "";
-	ctx.session.route = texts.first_question;
-	return ctx.reply(t(ctx, texts.choose_chapter), {
-		reply_markup: {
-			keyboard: [
-				[
-					{
-						text: t(ctx, texts.sold),
-						// , callback_data: texts.sold
-					},
-					{
-						text: t(ctx, texts.not_sold),
-						// callback_data: texts.not_sold,
-					},
+routes.route(texts.persontype, async (ctx) => {
+	if (
+		ctx.message?.text === t(ctx, texts.men) ||
+		ctx.message?.text === t(ctx, texts.women)
+	) {
+		ctx.session.user.user_telegram_id = ctx.chat?.id || 0;
+		ctx.session.user.telegram_username = ctx.from?.username || "";
+		ctx.session.user.persontype = ctx.message?.text || "";
+		ctx.session.route = texts.locations;
+		return ctx.reply(t(ctx, texts.choose_location), {
+			reply_markup: {
+				keyboard: [
+					...getButtons(
+						ctx,
+						ctx.session.user.persontype === t(ctx, texts.men)
+							? men
+							: women,
+						2,
+						"location"
+					),
 				],
-			],
-			resize_keyboard: true,
-		},
-	});
+				resize_keyboard: true,
+			},
+		});
+	} else
+		return ctx.reply(
+			"Iltimos quyidagi tugmalar yordamida o'zingizga kerakli bo'limni tanlang"
+		);
+});
+
+routes.route(texts.locations, async (ctx) => {
+	const location = (men || women).find(
+		(locate) => locate.id === ctx.message?.text?.split(" ")[men.length - 1]
+	);
+	if (location) {
+		ctx.session.user.locatsiya = ctx.message?.text || "";
+
+		ctx.session.route = texts.first_question;
+		return ctx.reply(t(ctx, texts.choose_chapter), {
+			reply_markup: {
+				keyboard: [
+					[
+						{
+							text: t(ctx, texts.sold),
+						},
+						{
+							text: t(ctx, texts.not_sold),
+						},
+					],
+				],
+				resize_keyboard: true,
+			},
+		});
+	}
+	return ctx.reply(
+		"Iltimos quyidagi tugmalar yordamida o'zingizga tegishli locatsiyangizni tanlang"
+	);
 });
 routes.route(texts.first_question, async (ctx) => {
-	ctx.session.user.Bolim = ctx.message?.text || "";
-	ctx.session.route = texts.second_question;
-	// if (ctx.chat?.id && ctx.message?.message_id) {
-	// 	bot.api
-	// 		.deleteMessage(ctx.chat.id, ctx.message.message_id - 1)
-	// 		.catch((e) => {});
-	// }
-	return ctx.reply(t(ctx, getOneQuestion(1)), {
-		reply_markup: { remove_keyboard: true },
-	});
+	if (
+		ctx.message?.text === t(ctx, texts.sold) ||
+		ctx.message?.text === t(ctx, texts.not_sold)
+	) {
+		ctx.session.user.bolim = ctx.message?.text || "";
+		ctx.session.route = texts.second_question;
+
+		return ctx.reply(t(ctx, getOneQuestion(1)), {
+			reply_markup: { remove_keyboard: true },
+		});
+	}
+	return ctx.reply(
+		"Iltimos quyidagi tugmalar yordamida o'zingizga tegishli bo'limni tanlang"
+	);
 });
 
 routes.route(texts.second_question, async (ctx) => {
-	if (ctx.update.message?.text) {
-		ctx.session.user.Ism = ctx.update.message?.text;
+	if (ctx.update.message?.text?.split(" ").length === 2) {
+		ctx.session.user.ism = ctx.update.message?.text;
 		ctx.session.route = texts.third_question;
 		return ctx.reply(t(ctx, getOneQuestion(2)));
 	} else return ctx.reply(t(ctx, texts.seventh_question_err));
 });
 routes.route(texts.third_question, async (ctx) => {
-	if (ctx.update.message?.text) {
-		ctx.session.user.Yosh = ctx.update.message?.text;
+	const regex = /^[1-9]{2}$/;
+	if (
+		ctx.update.message?.text?.length === 2 &&
+		regex.test(ctx.update.message.text)
+	) {
+		ctx.session.user.yosh = ctx.update.message?.text;
 		ctx.session.route = texts.fourht_question;
 		const sendPhone = new Keyboard().requestContact(
 			t(ctx, texts.eighth_question_content)
@@ -75,16 +119,10 @@ routes.route(texts.third_question, async (ctx) => {
 routes.route(texts.fourht_question, async (ctx) => {
 	const regex = /\+?(998)? ?(\d{2} ?\d{3} ?\d{2} ?\d{2})$/gi;
 	if (regex.test(ctx.msg?.text || "") || ctx.msg?.contact) {
-		ctx.session.user.Telefon_raqam =
+		ctx.session.user.telefon_raqam =
 			ctx.msg?.contact?.phone_number || ctx.msg?.text || "";
 		ctx.session.route = texts.fifth_question;
-		const chapter = await ctx.session.user.Bolim;
-
-		// if (ctx.chat?.id && ctx.message?.message_id) {
-		// 	bot.api
-		// 		.deleteMessage(ctx.chat.id, ctx.message.message_id - 1)
-		// 		.catch((e) => {});
-		// }
+		const chapter = await ctx.session.user.bolim;
 
 		return await ctx.reply(
 			t(
@@ -95,22 +133,18 @@ routes.route(texts.fourht_question, async (ctx) => {
 			),
 			{
 				reply_markup: {
-					// remove_keyboard: true,
 					keyboard: [
 						[
 							{
 								text: t(ctx, texts.price),
-								// callback_data: texts.price,
 							},
 							{
 								text: t(ctx, texts.assortment),
-								// callback_data: texts.assortment,
 							},
 						],
 						[
 							{
 								text: t(ctx, texts.service),
-								// callback_data: texts.service,
 							},
 						],
 					],
@@ -124,121 +158,156 @@ routes.route(texts.fourht_question, async (ctx) => {
 });
 
 routes.route(texts.fifth_question, async (ctx) => {
-	const first_answer = ctx.message?.text;
-	ctx.session.user.Nima_yoqdi =
-		t(ctx, first_answer ? first_answer : "") || "";
+	if (
+		ctx.message?.text === t(ctx, texts.service) ||
+		ctx.message?.text === t(ctx, texts.assortment) ||
+		ctx.message?.text === t(ctx, texts.price)
+	) {
+		const first_answer = ctx.message?.text;
+		ctx.session.user.nima_yoqdi =
+			t(ctx, first_answer ? first_answer : "") || "";
 
-	ctx.session.route = texts.sixth_question;
+		ctx.session.route = texts.sixth_question;
 
-	return ctx.reply(t(ctx, getOneQuestion(6)), {
-		reply_markup: {
-			keyboard: [
-				...getButtons(
-					ctx,
-					[
-						{ id: 1 },
-						{ id: 2 },
-						{ id: 3 },
-						{ id: 4 },
-						{ id: 5 },
-						{ id: 6 },
-						{ id: 7 },
-						{ id: 8 },
-						{ id: 9 },
-						{ id: 10 },
-					],
-					4,
-					"ball"
-				),
-			],
-			resize_keyboard: true,
-		},
-	});
+		return ctx.reply(t(ctx, getOneQuestion(6)), {
+			reply_markup: {
+				keyboard: [
+					...getButtons(
+						ctx,
+						[
+							{ id: 1 },
+							{ id: 2 },
+							{ id: 3 },
+							{ id: 4 },
+							{ id: 5 },
+							{ id: 6 },
+							{ id: 7 },
+							{ id: 8 },
+							{ id: 9 },
+							{ id: 10 },
+						],
+						4,
+						"ball"
+					),
+				],
+				resize_keyboard: true,
+			},
+		});
+	}
+	return ctx.reply("Iltimos quyidagi tugmalar yordamida tanlov qiling");
 });
-routes.route(texts.sixth_question, (ctx) => {
-	ctx.session.user.Narx_ball = ctx.message?.text?.split(" ")[0] || "";
-	ctx.session.route = texts.seventh_question;
-	return ctx.reply(t(ctx, getOneQuestion(7)), {
-		reply_markup: {
-			keyboard: [
-				...getButtons(
-					ctx,
-					[
-						{ id: 1 },
-						{ id: 2 },
-						{ id: 3 },
-						{ id: 4 },
-						{ id: 5 },
-						{ id: 6 },
-						{ id: 7 },
-						{ id: 8 },
-						{ id: 9 },
-						{ id: 10 },
-					],
-					4,
-					"ball"
-				),
-			],
-			resize_keyboard: true,
-		},
-	});
+routes.route(texts.sixth_question, async (ctx) => {
+	const bal = ball.find(
+		(ball) =>
+			String(ball.id) === ctx.message?.text?.split(" ")[0] ||
+			String(ball.id) === ctx.message?.text
+	);
+	if (bal) {
+		ctx.session.user.narx_ball =
+			ctx.message?.text?.split(" ")[0] || ctx.message?.text || "";
+		ctx.session.route = texts.seventh_question;
+		return ctx.reply(t(ctx, getOneQuestion(7)), {
+			reply_markup: {
+				keyboard: [
+					...getButtons(
+						ctx,
+						[
+							{ id: 1 },
+							{ id: 2 },
+							{ id: 3 },
+							{ id: 4 },
+							{ id: 5 },
+							{ id: 6 },
+							{ id: 7 },
+							{ id: 8 },
+							{ id: 9 },
+							{ id: 10 },
+						],
+						4,
+						"ball"
+					),
+				],
+				resize_keyboard: true,
+			},
+		});
+	} else return ctx.reply("Iltimos quyidagi tugmalar yordamida baho bering");
 });
 routes.route(texts.seventh_question, (ctx) => {
-	ctx.session.user.Assortiment_ball = ctx.message?.text?.split(" ")[0] || "";
-	ctx.session.route = texts.eighth_question;
-	return ctx.reply(t(ctx, getOneQuestion(8)), {
-		reply_markup: {
-			keyboard: [
-				...getButtons(
-					ctx,
-					[
-						{ id: 1 },
-						{ id: 2 },
-						{ id: 3 },
-						{ id: 4 },
-						{ id: 5 },
-						{ id: 6 },
-						{ id: 7 },
-						{ id: 8 },
-						{ id: 9 },
-						{ id: 10 },
-					],
-					4,
-					"ball"
-				),
-			],
-			resize_keyboard: true,
-		},
-	});
+	const bal = ball.find(
+		(ball) =>
+			String(ball.id) === ctx.message?.text?.split(" ")[0] ||
+			String(ball.id) === ctx.message?.text
+	);
+	if (bal) {
+		ctx.session.user.assortiment_ball =
+			ctx.message?.text?.split(" ")[0] || ctx.message?.text || "";
+		ctx.session.route = texts.eighth_question;
+		return ctx.reply(t(ctx, getOneQuestion(8)), {
+			reply_markup: {
+				keyboard: [
+					...getButtons(
+						ctx,
+						[
+							{ id: 1 },
+							{ id: 2 },
+							{ id: 3 },
+							{ id: 4 },
+							{ id: 5 },
+							{ id: 6 },
+							{ id: 7 },
+							{ id: 8 },
+							{ id: 9 },
+							{ id: 10 },
+						],
+						4,
+						"ball"
+					),
+				],
+				resize_keyboard: true,
+			},
+		});
+	} else return ctx.reply("Iltimos quyidagi tugmalar yordamida baho bering");
 });
 
 routes.route(texts.eighth_question, async (ctx) => {
-	ctx.session.user.Xizmat_ball = ctx.message?.text?.split(" ")[0] || "";
-	ctx.session.route = texts.last_session;
+	const bal = ball.find(
+		(ball) =>
+			String(ball.id) === ctx.message?.text?.split(" ")[0] ||
+			String(ball.id) === ctx.message?.text
+	);
+	if (bal) {
+		ctx.session.user.xizmat_ball =
+			ctx.message?.text?.split(" ")[0] || ctx.message?.text || "";
+		ctx.session.route = texts.last_session;
 
-	return ctx.reply(t(ctx, getOneQuestion(9)), {
-		reply_markup: { remove_keyboard: true },
-	});
+		return ctx.reply(t(ctx, getOneQuestion(9)), {
+			reply_markup: { remove_keyboard: true },
+		});
+	} else return ctx.reply("Iltimos quyidagi tugmalar yordamida baho bering");
 });
 
 routes.route(texts.last_session, async (ctx) => {
 	if (ctx.update.message?.text) {
-		ctx.session.user.Taklif = ctx.update.message?.text;
+		ctx.session.user.taklif = ctx.update.message?.text;
 		const newInfo = ctx.session.user;
 
 		const newInfoDB = await User.create({
-			User_telegram_id: Number(newInfo.User_telegram_id) || 0,
-			Telegram_username: `@${newInfo.Telegram_username}`,
-			Locatsiya: newInfo.Locatsiya,
-			Bolim: newInfo.Bolim,
-			Telefon_raqam: newInfo.Telefon_raqam,
-			Nima_yoqdi: newInfo.Nima_yoqdi,
-			Narx_ball: newInfo.Narx_ball,
-			Assortiment_ball: newInfo.Assortiment_ball,
-			Xizmat_ball: newInfo.Xizmat_ball,
-			Taklif: newInfo.Taklif,
-			Yosh: newInfo.Yosh,
-			Ism: newInfo.Ism,
+			user_telegram_id: Number(newInfo.user_telegram_id) || 0,
+			telegram_username: `@${newInfo.telegram_username}`,
+			locatsiya: newInfo.locatsiya,
+			bolim: newInfo.bolim,
+			telefon_raqam: newInfo.telefon_raqam,
+			yoqdi_yoqmadi: newInfo.nima_yoqdi,
+			narx_ball: newInfo.narx_ball,
+			assortiment_ball: newInfo.assortiment_ball,
+			xizmat_ball: newInfo.xizmat_ball,
+			taklif: newInfo.taklif,
+			yosh: newInfo.yosh,
+			ism: newInfo.ism,
+			shaxs:
+				newInfo.persontype.split(" ")[0] === "Erkaklar"
+					? newInfo.persontype.split(" ")[0].slice(0, 5)
+					: newInfo.persontype.split(" ")[0].slice(0, 4),
 		});
 
 		await newInfoDB.save();
@@ -246,7 +315,11 @@ routes.route(texts.last_session, async (ctx) => {
 		ctx.session.route = "main";
 		await converterFolder(ctx);
 		await bot.api
-			.sendMessage(-1001718670724, getPost(ctx, ctx.session.user))
+			.sendMessage(
+				// -1001718670724,
+				1001607304530,
+				getPost(ctx, ctx.session.user)
+			)
 			.catch((err) => console.log(err));
 		return ctx.reply(t(ctx, texts.thanks));
 	} else return ctx.reply(t(ctx, texts.fifth_question_err));

@@ -43,7 +43,7 @@ export const loadBot = () => {
 			// 	return ctx.reply("Siz ankatani to'ldirib bo'lgansiz. Rahmat!");
 			// }
 
-			ctx.session.route = texts.locations;
+			ctx.session.route = texts.persontype;
 			return main_menu(ctx);
 		}
 

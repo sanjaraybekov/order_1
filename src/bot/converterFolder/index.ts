@@ -6,9 +6,9 @@ import { MyContext } from "../types/MyContext";
 const XLSX = require("xlsx");
 
 const convertJsonToExcel = async (ctx: MyContext) => {
-	const location = ctx.session.user.Locatsiya;
+	const location = ctx.session.user.locatsiya;
 
-	const usersData = await User.find({ where: { Locatsiya: location } });
+	const usersData = await User.find({ where: { locatsiya: location } });
 
 	const workSheet = XLSX.utils.json_to_sheet(usersData);
 	const workBook = XLSX.utils.book_new();
@@ -17,16 +17,12 @@ const convertJsonToExcel = async (ctx: MyContext) => {
 		workBook,
 		workSheet,
 		`${
-			location === t(ctx, texts.yunusobod)
-				? `Yunusobod`
-				: location === t(ctx, texts.yakkasaroy)
-				? `Yakkasaroy`
-				: location === t(ctx, texts.sergili)
-				? `Sergili`
-				: location === t(ctx, texts.chilonzor)
-				? `Chilonzor`
-				: location === t(ctx, texts.beruniy)
+			location === t(ctx, texts.location_beruniy)
 				? `Beruniy`
+				: location === t(ctx, texts.location_magnit)
+				? `Magnit`
+				: location === t(ctx, texts.location_shuxrat)
+				? `Shuxrat`
 				: ``
 		}`
 	);
