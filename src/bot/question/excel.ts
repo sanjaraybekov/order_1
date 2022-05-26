@@ -16,7 +16,6 @@ export async function getPath(data: string) {
 
 export async function generateExcel() {
 	const users = await User.find();
-	// console.log(users);
 	const workSheet = XLSX.utils.json_to_sheet(users);
 	const workBook = XLSX.utils.book_new();
 	XLSX.utils.book_append_sheet(workBook, workSheet);
@@ -24,7 +23,6 @@ export async function generateExcel() {
 		workBook,
 		`${resolve(__dirname, "../../../statics/locations.xlsx")}`
 	);
-	console.log("sss");
 }
 
 export async function getQuestionsFromExcel() {
