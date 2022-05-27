@@ -10,6 +10,7 @@ import converterFolder from "../converterFolder";
 import { User } from "../../db/User";
 import { getOneQuestion } from "../question";
 import { ball, men, women } from "../constants/buttons";
+import { main_menu } from "../markups/markups";
 
 const routes = new Router<MyContext>((ctx) => ctx.session.route);
 
@@ -97,9 +98,13 @@ routes.route(texts.second_question, async (ctx) => {
 });
 routes.route(texts.third_question, async (ctx) => {
 	const regex = /^[1-9]{2}$/;
+	const age = ["10", "20", "30", "40", "50", "60", "70", "80", "90"].find(
+		(age) => age === ctx.update.message?.text
+	);
 	if (
-		ctx.update.message?.text?.length === 2 &&
-		regex.test(ctx.update.message.text)
+		(ctx.update.message?.text?.length === 2 &&
+			regex.test(ctx.update.message.text)) ||
+		(age && ctx.update.message?.text === age)
 	) {
 		ctx.session.user.yosh = ctx.update.message?.text;
 		ctx.session.route = texts.fourht_question;
@@ -171,25 +176,7 @@ routes.route(texts.fifth_question, async (ctx) => {
 
 		return ctx.reply(t(ctx, getOneQuestion(6)), {
 			reply_markup: {
-				keyboard: [
-					...getButtons(
-						ctx,
-						[
-							{ id: 1 },
-							{ id: 2 },
-							{ id: 3 },
-							{ id: 4 },
-							{ id: 5 },
-							{ id: 6 },
-							{ id: 7 },
-							{ id: 8 },
-							{ id: 9 },
-							{ id: 10 },
-						],
-						4,
-						"ball"
-					),
-				],
+				keyboard: [...getButtons(ctx, ball, 4, "ball")],
 				resize_keyboard: true,
 			},
 		});
@@ -208,25 +195,7 @@ routes.route(texts.sixth_question, async (ctx) => {
 		ctx.session.route = texts.seventh_question;
 		return ctx.reply(t(ctx, getOneQuestion(7)), {
 			reply_markup: {
-				keyboard: [
-					...getButtons(
-						ctx,
-						[
-							{ id: 1 },
-							{ id: 2 },
-							{ id: 3 },
-							{ id: 4 },
-							{ id: 5 },
-							{ id: 6 },
-							{ id: 7 },
-							{ id: 8 },
-							{ id: 9 },
-							{ id: 10 },
-						],
-						4,
-						"ball"
-					),
-				],
+				keyboard: [...getButtons(ctx, ball, 4, "ball")],
 				resize_keyboard: true,
 			},
 		});
@@ -244,25 +213,7 @@ routes.route(texts.seventh_question, (ctx) => {
 		ctx.session.route = texts.eighth_question;
 		return ctx.reply(t(ctx, getOneQuestion(8)), {
 			reply_markup: {
-				keyboard: [
-					...getButtons(
-						ctx,
-						[
-							{ id: 1 },
-							{ id: 2 },
-							{ id: 3 },
-							{ id: 4 },
-							{ id: 5 },
-							{ id: 6 },
-							{ id: 7 },
-							{ id: 8 },
-							{ id: 9 },
-							{ id: 10 },
-						],
-						4,
-						"ball"
-					),
-				],
+				keyboard: [...getButtons(ctx, ball, 4, "ball")],
 				resize_keyboard: true,
 			},
 		});
@@ -281,16 +232,24 @@ routes.route(texts.eighth_question, async (ctx) => {
 		ctx.session.route = texts.last_session;
 
 		return ctx.reply(t(ctx, getOneQuestion(9)), {
-			reply_markup: { remove_keyboard: true },
+			reply_markup: {
+				keyboard: [[{ text: t(ctx, texts.skip_btn) }]],
+				resize_keyboard: true,
+			},
+			parse_mode: "HTML",
 		});
 	} else return ctx.reply("Iltimos quyidagi tugmalar yordamida baho bering");
 });
 
 routes.route(texts.last_session, async (ctx) => {
 	if (ctx.update.message?.text) {
-		ctx.session.user.taklif = ctx.update.message?.text;
-		const newInfo = ctx.session.user;
+		ctx.session.user.taklif =
+			ctx.update.message?.text === t(ctx, texts.skip_btn)
+				? "Taklif qoldirilmadi"
+				: ctx.update.message?.text;
 
+		const newInfo = ctx.session.user;
+		ctx.session.route = texts.final;
 		const newInfoDB = await User.create({
 			user_telegram_id: Number(newInfo.user_telegram_id) || 0,
 			telegram_username: `@${newInfo.telegram_username}`,
@@ -321,8 +280,19 @@ routes.route(texts.last_session, async (ctx) => {
 				getPost(ctx, ctx.session.user)
 			)
 			.catch((err) => console.log(err));
-		return ctx.reply(t(ctx, texts.thanks));
+		return ctx.reply(t(ctx, texts.thanks), {
+			reply_markup: { remove_keyboard: true },
+		});
 	} else return ctx.reply(t(ctx, texts.fifth_question_err));
 });
+
+// routes.route(texts.final, async (ctx) => {
+// 	const time = new Date().getHours();
+// 	if (time <= 23) {
+// 		return ctx.reply(
+// 			"Siz bugungi limittan foydalandingiz. Ertaga yana do'konimizga tashrif buyiring va o'yinimizda yana ovoz berish imkoniyatiga ega bo'ling 😊"
+// 		);
+// 	} else return main_menu(ctx);
+// });
 
 export { routes };
