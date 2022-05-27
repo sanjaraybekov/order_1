@@ -23,5 +23,5 @@ export const getPost = (ctx: MyContext, data: UserType) => {
 	}\n${
 		t(ctx, texts.username) +
 		(ctx.from?.username ? `@${data.telegram_username}` : "Mavjud emas")
-	}\n${t(ctx, texts.phone) + data.telefon_raqam}`;
+	}\n${t(ctx, texts.phone) + data.telefon_raqam}\n`;
 };
