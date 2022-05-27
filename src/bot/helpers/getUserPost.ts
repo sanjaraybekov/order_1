@@ -6,9 +6,9 @@ import { UserType } from "../types/User";
 export const getPost = (ctx: MyContext, data: UserType) => {
 	return `Yangi ma'lumot\n\n${
 		t(ctx, texts.shaxs) +
-		(data.persontype.split(" ")[0] === "Erkaklar"
-			? data.persontype.split(" ")[0].slice(0, 5)
-			: data.persontype.split(" ")[0].slice(0, 4))
+		(data.persontype.split(" ")[1] === "Erkaklar"
+			? data.persontype.split(" ")[1].slice(0, 5)
+			: data.persontype.split(" ")[1].slice(0, 4))
 	}\n${t(ctx, texts.userfullname) + data.ism}\n${
 		t(ctx, texts.age) + data.yosh
 	}\n${t(ctx, texts.userchapter) + t(ctx, data.bolim)}\n${

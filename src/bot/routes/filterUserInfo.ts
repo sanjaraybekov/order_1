@@ -305,9 +305,9 @@ routes.route(texts.last_session, async (ctx) => {
 			yosh: newInfo.yosh,
 			ism: newInfo.ism,
 			shaxs:
-				newInfo.persontype.split(" ")[0] === "Erkaklar"
-					? newInfo.persontype.split(" ")[0].slice(0, 5)
-					: newInfo.persontype.split(" ")[0].slice(0, 4),
+				newInfo.persontype.split(" ")[1] === "Erkaklar"
+					? newInfo.persontype.split(" ")[1].slice(0, 5)
+					: newInfo.persontype.split(" ")[1].slice(0, 4),
 		});
 
 		await newInfoDB.save();
